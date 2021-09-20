@@ -4,6 +4,18 @@ from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
+    '''
+    
+    load and merge 
+    
+    Parameters:
+    messages_filepath: message (csv file) 
+    categories_filepath: categories (csv file) 
+    
+    Returns:
+    df: merged dataframe of messages and dataframe
+    
+    '''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     # merge datasets on common id and assign to df
@@ -13,6 +25,17 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    '''
+    
+    Cleans the data
+    
+    Parameter: 
+    df: Dataframe
+    
+    Return:
+    df: Cleaned Dataframe
+    
+    '''
     categories = df.categories.str.split(';',expand=True)
     row = categories.head(1)
     category_colnames = row.applymap(lambda x: x[:-2]).iloc[0,:]
@@ -33,12 +56,14 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
+    """Stores df in a SQLite database."""
     engine = create_engine(f'sqlite:///{database_filename}')
     df.to_sql('figure_eight', engine, index=False,if_exists='replace')
     
 
 
 def main():
+    """Loads data, cleans data, saves data to database"""
     print(sys.argv[0])
     if len(sys.argv) == 4:
         
