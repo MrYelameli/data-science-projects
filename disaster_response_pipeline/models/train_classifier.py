@@ -17,6 +17,7 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.model_selection import GridSearchCV
+import pickle
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -27,10 +28,12 @@ nltk.download('averaged_perceptron_tagger')
 def load_data(database_filepath):
     print(type(database_filepath))
     engine = create_engine(f"sqlite:///{database_filepath}")
-    df = pd.read_sql_table('../data/figure_eight',engine)
+    df = pd.read_sql_table('figure_eight',engine)
     X = df['message']
     Y = df.iloc[:,4:]
-
+    category_names = Y.columns
+    return X, Y, category_names
+    
 def tokenize(text):
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
     words = nltk.tokenize.word_tokenize(text)
