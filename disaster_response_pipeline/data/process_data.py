@@ -44,12 +44,11 @@ def clean_data(df):
     for column in categories:
         categories[column] = categories[column].str[-1]
         categories[column] = categories[column].astype(np.int)
-    categories.drop(categories[categories['related']==2].index,inplace=True)
-    print(categories.related.unique())
+  
     df = df.drop('categories',axis=1)
     df = pd.concat([df,categories],axis=1)
+    df.related.replace(2,1,inplace=True)
     df = df.drop_duplicates()
-
     return df
     
 
