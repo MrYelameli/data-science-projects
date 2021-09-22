@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 from sqlalchemy import create_engine
+import numpy as np
 
 
 def load_data(messages_filepath, categories_filepath):
@@ -36,19 +37,19 @@ def clean_data(df):
     df: Cleaned Dataframe
     
     '''
-    categories = df.categories.str.split(';',expand=True)
-    row = categories.head(1)
-    category_colnames = row.applymap(lambda x: x[:-2]).iloc[0,:]
+    categories = df.categories.str.split(pat=';',expand=True)
+    firstrow = categories.iloc[0,:]
+    category_colnames = firstrow.apply(lambda x:x[:-2])
     categories.columns = category_colnames
     for column in categories:
-        # set each value to be the last character of the string
         categories[column] = categories[column].str[-1]
-
-        # convert column from string to numeric
-        categories[column] = categories[column].astype(int)
-    df.drop('categories',axis=1,inplace=True)
+        categories[column] = categories[column].astype(np.int)
+    categories.drop(categories[categories['related']==2].index,inplace=True)
+    print(categories.related.unique())
+    df = df.drop('categories',axis=1)
     df = pd.concat([df,categories],axis=1)
-    df.drop_duplicates(inplace=True)
+    df = df.drop_duplicates()
+
     return df
     
 
@@ -57,8 +58,9 @@ def clean_data(df):
 
 def save_data(df, database_filename):
     """Stores df in a SQLite database."""
-    engine = create_engine(f'sqlite:///{database_filename}')
-    df.to_sql('figure_eight', engine, index=False,if_exists='replace')
+    engine = create_engine('sqlite:///'+ database_filename)
+    df.to_sql('df', engine, index=False)
+    pass
     
 
 
